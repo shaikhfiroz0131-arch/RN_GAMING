@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+        
+        .login-form {
+            display: block;
+        }
+        
+        .admin-panel {
+            display: none;
+        }
+        
+        h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #333;
+            font-size: 1.8rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus, input[type="password"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-top: 1rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            margin-top: 0.5rem;
+        }
+        
+        .error {
+            color: #dc3545;
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .success {
+            color: #28a745;
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .welcome-msg {
+            text-align: center;
+            color: #28a745;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .user-list {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .user-item:last-child {
+            border-bottom: none;
+        }
+        
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            width: auto;
+            margin: 0 0.25rem;
+        }
+        
+        .add-user-form {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        
+        .role-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .admin-badge {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .user-badge {
+            background: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Form -->
+        <div class="login-form" id="loginForm">
+            <h2>🔐 Login</h2>
+            <form id="loginFormElement">
+                <div class="form-group">
+                    <label for="userType">User Type:</label>
+                    <select id="userType" required>
+                        <option value="user">Public User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+                <div id="loginError" class="error"></div>
+            </form>
+        </div>
+
+        <!-- Admin Panel -->
+        <div class="admin-panel" id="adminPanel">
+            <div class="welcome-msg">
+                🎉 Welcome Admin!
+            </div>
+            <h2>Admin Dashboard</h2>
+            
+            <!-- Add New User Form -->
+            <div class="add-user-form">
+                <h3>Add New User</h3>
+                <div class="form-group">
+                    <label for="newUsername">Username:</label>
+                    <input type="text" id="newUsername" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Password:</label>
+                    <input type="password" id="newPassword" placeholder="Enter password">
+                </div>
+                <button onclick="addUser()" class="btn">Add User</button>
+                <div id="addUserMsg"></div>
+            </div>
+            
+            <!-- Users List -->
+            <div class="user-list">
+                <h3>Registered Users</h3>
+                <div id="usersList"></div>
+            </div>
+            
+            <button onclick="logout()" class="btn btn-secondary">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        // Default admin credentials
+        const adminCredentials = {
+            username: 'admin',
+            password: 'admin123'
+        };
+        
+        // Public users array (stored in memory)
+        let publicUsers = [
+            { username: 'user1', password: 'pass123' },
+            { username: 'user2', password: 'pass456' }
+        ];
+        
+        // Current logged in user
+        let currentUser = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            displayUsers();
+        });
+        
+        // Handle login form submission
+        document.getElementById('loginFormElement').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const userType = document.getElementById('userType').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            errorDiv.textContent = '';
+            
+            if (userType === 'admin') {
+                // Admin login
+                if (username === adminCredentials.username && password === adminCredentials.password) {
+                    currentUser = { username: username, type: 'admin' };
+                    showAdminPanel();
+                } else {
+                    errorDiv.textContent = '❌ Invalid admin credentials!';
+                }
+            } else {
+                // Public user login
+                const user = publicUsers.find(u => u.username === username && u.password === password);
+                if (user) {
+                    currentUser = { username: username, type: 'user' };
+                    showUserDashboard();
+                } else {
+                    errorDiv.textContent = '❌ Invalid user credentials!';
+                }
+            }
+        });
+        
+        function showAdminPanel() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            displayUsers();
+        }
+        
+        // Redirect public user to external site
+        function showUserDashboard() {
+            window.location.href = "https://shaikhfiroz0131-arch.github.io/Firoz/";
+        }
+        
+        function addUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value.trim();
+            const msgDiv = document.getElementById('addUserMsg');
+            
+            msgDiv.textContent = '';
+            msgDiv.className = '';
+            
+            if (!username || !password) {
+                msgDiv.textContent = '❌ Please fill all fields!';
+                msgDiv.className = 'error';
+                return;
+            }
+            
+            // Check if username already exists
+            if (publicUsers.find(u => u.username === username)) {
+                msgDiv.textContent = '❌ Username already exists!';
+                msgDiv.className = 'error';
+                return;
+            }
+            
+            // Add new user
+            publicUsers.push({ username: username, password: password });
+            
+            // Clear form
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            
+            msgDiv.textContent = '✅ User added successfully!';
+            msgDiv.className = 'success';
+            
+            displayUsers();
+        }
+        
+        function removeUser(username) {
+            if (confirm(`Are you sure you want to remove user "${username}"?`)) {
+                publicUsers = publicUsers.filter(u => u.username !== username);
+                displayUsers();
+            }
+        }
+        
+        function displayUsers() {
+            const usersList = document.getElementById('usersList');
+            
+            if (publicUsers.length === 0) {
+                usersList.innerHTML = '<p style="text-align: center; color: #666;">No users registered yet.</p>';
+                return;
+            }
+            
+            let html = '';
+            
+            // Show admin
+            html += `
+                <div class="user-item">
+                    <div>
+                        <strong>admin</strong>
+                        <span class="role-badge admin-badge">Admin</span>
+                    </div>
+                    <div>Default Admin Account</div>
+                </div>
+            `;
+            
+            // Show public users
+            publicUsers.forEach(user => {
+                html += `
+                    <div class="user-item">
+                        <div>
+                            <strong>${user.username}</strong>
+                            <span class="role-badge user-badge">User</span>
+                        </div>
+                        <div>
+                            <button onclick="removeUser('${user.username}')" class="btn btn-secondary btn-small">Remove</button>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            usersList.innerHTML = html;
+        }
+        
+        function logout() {
+            currentUser = null;
+            
+            // Hide all panels
+            document.getElementById('adminPanel').style.display = 'none';
+            
+            // Show login form
+            document.getElementById('loginForm').style.display = 'block';
+            
+            // Clear form
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginError').textContent = '';
+        }
+    </script>
+</body>
+</html>
